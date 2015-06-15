@@ -84,7 +84,11 @@ require_once 'Beautifier/StreamWrapper.php';
 class PHP_Beautifier implements PHP_Beautifier_Interface
 {
     // public
-    
+    /**
+	 * [mj] blank line destroyer fix
+	 * @see https://github.com/jespino/PHP_Beautifier/commit/15e6c66d2b2473cd3487c86ab9b2e3d5ed567ee7
+	 */
+	public $addedBlankLine = false;
     /**
      * Tokens created by the tokenizer
      * @var array
@@ -1779,8 +1783,10 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
         for ($i = count($this->aOut) -1 ; $i >= 0 ; $i--) { // go backwards
             $cNow = &$this->aOut[$i];
             if (strlen(trim($cNow)) == 0) { // only space
-                array_pop($this->aOut); // delete it!
-                $pop++;
+                if (!$this->addedBlankLine || ($cNow!="\r" && $cNow!="\n")) {
+                    array_pop($this->aOut); // delete it!
+                    $pop++;
+                }
             } else { // we find something!
                 $cNow = rtrim($cNow); // rtrim out
                 break;
